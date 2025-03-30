@@ -13,11 +13,12 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Configure Cocoa static library
-              run: cmake -B build-cocoa-static
             - name: Build Cocoa static library
-              run: cmake --build build-cocoa-static --parallel 4
+              run: |
+                  cmake -B build-cocoa-static
+                  cmake --build build-cocoa-static --parallel 4
+                  cmake --install build-cocoa-static
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
-                  path: build/
+                  path: build-cocoa-static/
