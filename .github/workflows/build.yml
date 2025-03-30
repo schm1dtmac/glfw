@@ -17,3 +17,7 @@ jobs:
               run: cmake -B build-cocoa-static
             - name: Build Cocoa static library
               run: cmake --build build-cocoa-static --parallel 4
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  path: build/
