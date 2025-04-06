@@ -337,8 +337,6 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
 @interface GLFWContentView : NSView <NSTextInputClient>
 {
     _GLFWwindow* window;
-    NSTrackingArea* trackingArea;
-    NSMutableAttributedString* markedText;
 }
 
 - (instancetype)initWithGlfwWindow:(_GLFWwindow *)initWindow;
@@ -353,11 +351,6 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     if (self != nil)
     {
         window = initWindow;
-        trackingArea = nil;
-        markedText = [[NSMutableAttributedString alloc] init];
-
-        [self updateTrackingAreas];
-        [self registerForDraggedTypes:@[NSPasteboardTypeURL]];
     }
 
     return self;
@@ -366,7 +359,6 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
 - (void)dealloc
 {
     [trackingArea release];
-    [markedText release];
     [super dealloc];
 }
 
@@ -398,117 +390,22 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     _glfwInputWindowDamage(window);
 }
 
-- (void)cursorUpdate:(NSEvent *)event
-{
-    updateCursorImage(window);
-}
-
 - (BOOL)acceptsFirstMouse:(NSEvent *)event
 {
     return YES;
 }
 
-- (void)mouseDown:(NSEvent *)event
-{
-    _glfwInputMouseClick(window,
-                         GLFW_MOUSE_BUTTON_LEFT,
-                         GLFW_PRESS,
-                         translateFlags([event modifierFlags]));
-}
-
-- (void)mouseDragged:(NSEvent *)event
-{
-    [self mouseMoved:event];
-}
-
-- (void)mouseUp:(NSEvent *)event
-{
-    _glfwInputMouseClick(window,
-                         GLFW_MOUSE_BUTTON_LEFT,
-                         GLFW_RELEASE,
-                         translateFlags([event modifierFlags]));
-}
-
 - (void)mouseMoved:(NSEvent *)event
 {
-    if (window->cursorMode == GLFW_CURSOR_DISABLED)
-    {
-        const double dx = [event deltaX] - window->ns.cursorWarpDeltaX;
-        const double dy = [event deltaY] - window->ns.cursorWarpDeltaY;
-
-        _glfwInputCursorPos(window,
-                            window->virtualCursorPosX + dx,
-                            window->virtualCursorPosY + dy);
-    }
-    else
-    {
-        const NSRect contentRect = [window->ns.view frame];
-        // NOTE: The returned location uses base 0,1 not 0,0
-        const NSPoint pos = [event locationInWindow];
-
-        _glfwInputCursorPos(window, pos.x, contentRect.size.height - pos.y);
-    }
-
-    window->ns.cursorWarpDeltaX = 0;
-    window->ns.cursorWarpDeltaY = 0;
+    [NSCursor unhide];
+	[timer invalidate];
+    timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(hideMouse:) userInfo:nil repeats:NO];
 }
 
-- (void)rightMouseDown:(NSEvent *)event
+- (void)hideMouse:(NSTimer *)timer
 {
-    _glfwInputMouseClick(window,
-                         GLFW_MOUSE_BUTTON_RIGHT,
-                         GLFW_PRESS,
-                         translateFlags([event modifierFlags]));
-}
-
-- (void)rightMouseDragged:(NSEvent *)event
-{
-    [self mouseMoved:event];
-}
-
-- (void)rightMouseUp:(NSEvent *)event
-{
-    _glfwInputMouseClick(window,
-                         GLFW_MOUSE_BUTTON_RIGHT,
-                         GLFW_RELEASE,
-                         translateFlags([event modifierFlags]));
-}
-
-- (void)otherMouseDown:(NSEvent *)event
-{
-    _glfwInputMouseClick(window,
-                         (int) [event buttonNumber],
-                         GLFW_PRESS,
-                         translateFlags([event modifierFlags]));
-}
-
-- (void)otherMouseDragged:(NSEvent *)event
-{
-    [self mouseMoved:event];
-}
-
-- (void)otherMouseUp:(NSEvent *)event
-{
-    _glfwInputMouseClick(window,
-                         (int) [event buttonNumber],
-                         GLFW_RELEASE,
-                         translateFlags([event modifierFlags]));
-}
-
-- (void)mouseExited:(NSEvent *)event
-{
-    if (window->cursorMode == GLFW_CURSOR_HIDDEN)
-        showCursor(window);
-
-    _glfwInputCursorEnter(window, GLFW_FALSE);
-}
-
-- (void)mouseEntered:(NSEvent *)event
-{
-    if (window->cursorMode == GLFW_CURSOR_HIDDEN)
-        hideCursor(window);
-
-    _glfwInputCursorEnter(window, GLFW_TRUE);
+	[NSCursor hide];
+	timer = nil;
 }
 
 - (void)viewDidChangeBackingProperties
@@ -540,210 +437,6 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
 - (void)drawRect:(NSRect)rect
 {
     _glfwInputWindowDamage(window);
-}
-
-- (void)updateTrackingAreas
-{
-    if (trackingArea != nil)
-    {
-        [self removeTrackingArea:trackingArea];
-        [trackingArea release];
-    }
-
-    const NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited |
-                                          NSTrackingActiveInKeyWindow |
-                                          NSTrackingEnabledDuringMouseDrag |
-                                          NSTrackingCursorUpdate |
-                                          NSTrackingInVisibleRect |
-                                          NSTrackingAssumeInside;
-
-    trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds]
-                                                options:options
-                                                  owner:self
-                                               userInfo:nil];
-
-    [self addTrackingArea:trackingArea];
-    [super updateTrackingAreas];
-}
-
-- (void)keyDown:(NSEvent *)event
-{
-    const int key = translateKey([event keyCode]);
-    const int mods = translateFlags([event modifierFlags]);
-
-    _glfwInputKey(window, key, [event keyCode], GLFW_PRESS, mods);
-
-    [self interpretKeyEvents:@[event]];
-}
-
-- (void)flagsChanged:(NSEvent *)event
-{
-    int action;
-    const unsigned int modifierFlags =
-        [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
-    const int key = translateKey([event keyCode]);
-    const int mods = translateFlags(modifierFlags);
-    const NSUInteger keyFlag = translateKeyToModifierFlag(key);
-
-    if (keyFlag & modifierFlags)
-    {
-        if (window->keys[key] == GLFW_PRESS)
-            action = GLFW_RELEASE;
-        else
-            action = GLFW_PRESS;
-    }
-    else
-        action = GLFW_RELEASE;
-
-    _glfwInputKey(window, key, [event keyCode], action, mods);
-}
-
-- (void)keyUp:(NSEvent *)event
-{
-    const int key = translateKey([event keyCode]);
-    const int mods = translateFlags([event modifierFlags]);
-    _glfwInputKey(window, key, [event keyCode], GLFW_RELEASE, mods);
-}
-
-- (void)scrollWheel:(NSEvent *)event
-{
-    double deltaX = [event scrollingDeltaX];
-    double deltaY = [event scrollingDeltaY];
-
-    if ([event hasPreciseScrollingDeltas])
-    {
-        deltaX *= 0.1;
-        deltaY *= 0.1;
-    }
-
-    if (fabs(deltaX) > 0.0 || fabs(deltaY) > 0.0)
-        _glfwInputScroll(window, deltaX, deltaY);
-}
-
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
-{
-    // HACK: We don't know what to say here because we don't know what the
-    //       application wants to do with the paths
-    return NSDragOperationGeneric;
-}
-
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender
-{
-    const NSRect contentRect = [window->ns.view frame];
-    // NOTE: The returned location uses base 0,1 not 0,0
-    const NSPoint pos = [sender draggingLocation];
-    _glfwInputCursorPos(window, pos.x, contentRect.size.height - pos.y);
-
-    NSPasteboard* pasteboard = [sender draggingPasteboard];
-    NSDictionary* options = @{NSPasteboardURLReadingFileURLsOnlyKey:@YES};
-    NSArray* urls = [pasteboard readObjectsForClasses:@[[NSURL class]]
-                                              options:options];
-    const NSUInteger count = [urls count];
-    if (count)
-    {
-        char** paths = _glfw_calloc(count, sizeof(char*));
-
-        for (NSUInteger i = 0;  i < count;  i++)
-            paths[i] = _glfw_strdup([urls[i] fileSystemRepresentation]);
-
-        _glfwInputDrop(window, (int) count, (const char**) paths);
-
-        for (NSUInteger i = 0;  i < count;  i++)
-            _glfw_free(paths[i]);
-        _glfw_free(paths);
-    }
-
-    return YES;
-}
-
-- (BOOL)hasMarkedText
-{
-    return [markedText length] > 0;
-}
-
-- (NSRange)markedRange
-{
-    if ([markedText length] > 0)
-        return NSMakeRange(0, [markedText length] - 1);
-    else
-        return kEmptyRange;
-}
-
-- (NSRange)selectedRange
-{
-    return kEmptyRange;
-}
-
-- (void)setMarkedText:(id)string
-        selectedRange:(NSRange)selectedRange
-     replacementRange:(NSRange)replacementRange
-{
-    [markedText release];
-    if ([string isKindOfClass:[NSAttributedString class]])
-        markedText = [[NSMutableAttributedString alloc] initWithAttributedString:string];
-    else
-        markedText = [[NSMutableAttributedString alloc] initWithString:string];
-}
-
-- (void)unmarkText
-{
-    [[markedText mutableString] setString:@""];
-}
-
-- (NSArray*)validAttributesForMarkedText
-{
-    return [NSArray array];
-}
-
-- (NSAttributedString*)attributedSubstringForProposedRange:(NSRange)range
-                                               actualRange:(NSRangePointer)actualRange
-{
-    return nil;
-}
-
-- (NSUInteger)characterIndexForPoint:(NSPoint)point
-{
-    return 0;
-}
-
-- (NSRect)firstRectForCharacterRange:(NSRange)range
-                         actualRange:(NSRangePointer)actualRange
-{
-    const NSRect frame = [window->ns.view frame];
-    return NSMakeRect(frame.origin.x, frame.origin.y, 0.0, 0.0);
-}
-
-- (void)insertText:(id)string replacementRange:(NSRange)replacementRange
-{
-    NSString* characters;
-    NSEvent* event = [NSApp currentEvent];
-    const int mods = translateFlags([event modifierFlags]);
-    const int plain = !(mods & GLFW_MOD_SUPER);
-
-    if ([string isKindOfClass:[NSAttributedString class]])
-        characters = [string string];
-    else
-        characters = (NSString*) string;
-
-    NSRange range = NSMakeRange(0, [characters length]);
-    while (range.length)
-    {
-        uint32_t codepoint = 0;
-
-        if ([characters getBytes:&codepoint
-                       maxLength:sizeof(codepoint)
-                      usedLength:NULL
-                        encoding:NSUTF32StringEncoding
-                         options:0
-                           range:range
-                  remainingRange:&range])
-        {
-            if (codepoint >= 0xf700 && codepoint <= 0xf7ff)
-                continue;
-
-            _glfwInputChar(window, codepoint, mods, plain);
-        }
-    }
 }
 
 - (void)doCommandBySelector:(SEL)selector
