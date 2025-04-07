@@ -710,11 +710,6 @@ struct _GLFWplatform
     int (*getKeyScancode)(int);
     void (*setClipboardString)(const char*);
     const char* (*getClipboardString)(void);
-    GLFWbool (*initJoysticks)(void);
-    void (*terminateJoysticks)(void);
-    GLFWbool (*pollJoystick)(_GLFWjoystick*,int);
-    const char* (*getMappingName)(void);
-    void (*updateGamepadGUID)(char*);
     // monitor
     void (*freeMonitor)(_GLFWmonitor*);
     void (*getMonitorPos)(_GLFWmonitor*,int*,int*);
