@@ -352,7 +352,7 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     if (self != nil)
     {
         window = initWindow;
-        timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(hideMouse:) userInfo:nil repeats:NO];
+        [NSCursor hide];
     }
 
     return self;
