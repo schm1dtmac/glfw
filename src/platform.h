@@ -88,8 +88,6 @@
  #define GLFW_GLX_LIBRARY_CONTEXT_STATE
 #endif
 
-#include "null_joystick.h"
-
 #if defined(_GLFW_WIN32)
  #include "win32_joystick.h"
 #else
