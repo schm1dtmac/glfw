@@ -32,8 +32,8 @@ set_target_properties(update_mappings PROPERTIES FOLDER "GLFW3")
 if (GLFW_BUILD_COCOA)
     enable_language(OBJC)
     target_compile_definitions(glfw PRIVATE _GLFW_COCOA)
-    target_sources(glfw PRIVATE cocoa_platform.h cocoa_joystick.h cocoa_init.m
-                                cocoa_joystick.m cocoa_monitor.m cocoa_window.m
+    target_sources(glfw PRIVATE cocoa_platform.h cocoa_init.m
+                                cocoa_monitor.m cocoa_window.m
                                 nsgl_context.m)
 endif()
 
