@@ -347,6 +347,8 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
 
 @implementation GLFWContentView
 
+NSTimer *cursortimer = nil;
+
 - (instancetype)initWithGlfwWindow:(_GLFWwindow *)initWindow
 {
     self = [super init];
@@ -355,6 +357,7 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
         window = initWindow;
         trackingArea = nil;
         markedText = [[NSMutableAttributedString alloc] init];
+        [NSCursor hide];
 
         [self updateTrackingAreas];
         [self registerForDraggedTypes:@[NSPasteboardTypeURL]];
@@ -428,8 +431,6 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
                          GLFW_RELEASE,
                          translateFlags([event modifierFlags]));
 }
-
-NSTimer *cursortimer = nil;
 
 - (void)mouseMoved:(NSEvent *)event
 {
