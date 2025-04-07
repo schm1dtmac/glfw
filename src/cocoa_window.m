@@ -337,6 +337,7 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
 @interface GLFWContentView : NSView <NSTextInputClient>
 {
     _GLFWwindow* window;
+    NSTimer* timer;
 }
 
 - (instancetype)initWithGlfwWindow:(_GLFWwindow *)initWindow;
@@ -351,6 +352,7 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     if (self != nil)
     {
         window = initWindow;
+        timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(hideMouse:) userInfo:nil repeats:NO];
     }
 
     return self;
@@ -358,7 +360,6 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
 
 - (void)dealloc
 {
-    [trackingArea release];
     [super dealloc];
 }
 
