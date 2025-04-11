@@ -46,9 +46,7 @@
 //
 GLFWbool _glfwIsValidContextConfig(const _GLFWctxconfig* ctxconfig)
 {
-    if (ctxconfig->source != GLFW_NATIVE_CONTEXT_API &&
-        ctxconfig->source != GLFW_EGL_CONTEXT_API &&
-        ctxconfig->source != GLFW_OSMESA_CONTEXT_API)
+    if (ctxconfig->source != GLFW_NATIVE_CONTEXT_API)
     {
         _glfwInputError(GLFW_INVALID_ENUM,
                         "Invalid context creation API 0x%08X",
@@ -57,8 +55,7 @@ GLFWbool _glfwIsValidContextConfig(const _GLFWctxconfig* ctxconfig)
     }
 
     if (ctxconfig->client != GLFW_NO_API &&
-        ctxconfig->client != GLFW_OPENGL_API &&
-        ctxconfig->client != GLFW_OPENGL_ES_API)
+        ctxconfig->client != GLFW_OPENGL_API)
     {
         _glfwInputError(GLFW_INVALID_ENUM,
                         "Invalid client API 0x%08X",
