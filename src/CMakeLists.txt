@@ -16,7 +16,6 @@ target_compile_options(glfw
 PRIVATE
     -O3
     -march=native
-    -fomit-frame-pointer
 )
 target_sources(glfw PRIVATE cocoa_platform.h cocoa_init.m
                             cocoa_monitor.m cocoa_window.m
