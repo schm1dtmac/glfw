@@ -450,41 +450,6 @@ static GLFWbool initializeTIS(void)
 
 @end // GLFWApplicationDelegate
 
-
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
-
-void* _glfwLoadLocalVulkanLoaderCocoa(void)
-{
-    CFBundleRef bundle = CFBundleGetMainBundle();
-    if (!bundle)
-        return NULL;
-
-    CFURLRef frameworksUrl = CFBundleCopyPrivateFrameworksURL(bundle);
-    if (!frameworksUrl)
-        return NULL;
-
-    CFURLRef loaderUrl = CFURLCreateCopyAppendingPathComponent(
-        kCFAllocatorDefault, frameworksUrl, CFSTR("libvulkan.1.dylib"), false);
-    if (!loaderUrl)
-    {
-        CFRelease(frameworksUrl);
-        return NULL;
-    }
-
-    char path[PATH_MAX];
-    void* handle = NULL;
-
-    if (CFURLGetFileSystemRepresentation(loaderUrl, true, (UInt8*) path, sizeof(path) - 1))
-        handle = _glfwPlatformLoadModule(path);
-
-    CFRelease(loaderUrl);
-    CFRelease(frameworksUrl);
-    return handle;
-}
-
-
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
@@ -553,13 +518,7 @@ GLFWbool _glfwConnectCocoa(int platformID, _GLFWplatform* platform)
         .pollEvents = _glfwPollEventsCocoa,
         .waitEvents = _glfwWaitEventsCocoa,
         .waitEventsTimeout = _glfwWaitEventsTimeoutCocoa,
-        .postEmptyEvent = _glfwPostEmptyEventCocoa,
-        .getEGLPlatform = _glfwGetEGLPlatformCocoa,
-        .getEGLNativeDisplay = _glfwGetEGLNativeDisplayCocoa,
-        .getEGLNativeWindow = _glfwGetEGLNativeWindowCocoa,
-        .getRequiredInstanceExtensions = _glfwGetRequiredInstanceExtensionsCocoa,
-        .getPhysicalDevicePresentationSupport = _glfwGetPhysicalDevicePresentationSupportCocoa,
-        .createWindowSurface = _glfwCreateWindowSurfaceCocoa
+        .postEmptyEvent = _glfwPostEmptyEventCocoa
     };
 
     *platform = cocoa;
@@ -680,8 +639,6 @@ void _glfwTerminateCocoa(void)
     _glfw_free(_glfw.ns.clipboardString);
 
     _glfwTerminateNSGL();
-    _glfwTerminateEGL();
-    _glfwTerminateOSMesa();
 
     } // autoreleasepool
 }
