@@ -52,19 +52,10 @@ static _GLFWinitconfig _glfwInitHints =
     .hatButtons = GLFW_TRUE,
     .angleType = GLFW_ANGLE_PLATFORM_TYPE_NONE,
     .platformID = GLFW_ANY_PLATFORM,
-    .vulkanLoader = NULL,
     .ns =
     {
         .menubar = GLFW_TRUE,
         .chdir = GLFW_TRUE
-    },
-    .x11 =
-    {
-        .xcbVulkanSurface = GLFW_TRUE,
-    },
-    .wl =
-    {
-        .libdecorMode = GLFW_WAYLAND_PREFER_LIBDECOR
     },
 };
 
@@ -114,8 +105,6 @@ static void terminate(void)
     _glfw_free(_glfw.monitors);
     _glfw.monitors = NULL;
     _glfw.monitorCount = 0;
-
-    _glfwTerminateVulkan();
     _glfw.platform.terminate();
 
     _glfw.initialized = GLFW_FALSE;
@@ -446,12 +435,6 @@ GLFWAPI void glfwInitHint(int hint, int value)
         case GLFW_COCOA_MENUBAR:
             _glfwInitHints.ns.menubar = value;
             return;
-        case GLFW_X11_XCB_VULKAN_SURFACE:
-            _glfwInitHints.x11.xcbVulkanSurface = value;
-            return;
-        case GLFW_WAYLAND_LIBDECOR:
-            _glfwInitHints.wl.libdecorMode = value;
-            return;
     }
 
     _glfwInputError(GLFW_INVALID_ENUM,
@@ -469,11 +452,6 @@ GLFWAPI void glfwInitAllocator(const GLFWallocator* allocator)
     }
     else
         memset(&_glfwInitAllocator, 0, sizeof(GLFWallocator));
-}
-
-GLFWAPI void glfwInitVulkanLoader(PFN_vkGetInstanceProcAddr loader)
-{
-    _glfwInitHints.vulkanLoader = loader;
 }
 
 GLFWAPI void glfwGetVersion(int* major, int* minor, int* rev)
