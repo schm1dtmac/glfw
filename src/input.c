@@ -26,7 +26,6 @@
 //========================================================================
 
 #include "internal.h"
-#include "mappings.h"
 
 #include <assert.h>
 #include <float.h>
