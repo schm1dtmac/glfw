@@ -35,9 +35,6 @@
  #error "You must not define these; define zero or more _GLFW_<platform> macros instead"
 #endif
 
-#define GLFW_EXPOSE_NATIVE_EGL
-#define GLFW_EXPOSE_NATIVE_OSMESA
-
 #if defined(_GLFW_WIN32)
  #include "win32_platform.h"
  #define GLFW_EXPOSE_NATIVE_WIN32
