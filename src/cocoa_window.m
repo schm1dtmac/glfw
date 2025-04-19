@@ -245,15 +245,6 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     }
 
     const NSRect contentRect = [window->ns.view frame];
-    const NSRect fbRect = [window->ns.view convertRectToBacking:contentRect];
-
-    if (fbRect.size.width != window->ns.fbWidth ||
-        fbRect.size.height != window->ns.fbHeight)
-    {
-        window->ns.fbWidth  = fbRect.size.width;
-        window->ns.fbHeight = fbRect.size.height;
-        _glfwInputFramebufferSize(window, fbRect.size.width, fbRect.size.height);
-    }
 
     if (contentRect.size.width != window->ns.width ||
         contentRect.size.height != window->ns.height)
@@ -1124,24 +1115,24 @@ void _glfwGetFramebufferSizeCocoa(_GLFWwindow* window, int* width, int* height)
     @autoreleasepool {
 
     const NSRect contentRect = [window->ns.view frame];
-
-     if (window->ns.scaleFramebuffer)
-     {
-         const NSRect fbRect = [window->ns.view convertRectToBacking:contentRect];
-
-         if (width)
-             *width = (int) fbRect.size.width;
-         if (height)
-             *height = (int) fbRect.size.height;
-     }
-     else
-     {
-         if (width)
-             *width = (int) contentRect.size.width;
-         if (height)
-             *height = (int) contentRect.size.height;
-
-     }
+	CGDirectDisplayID sid = ((NSNumber *)[[[NSScreen mainScreen] deviceDescription]
+	    objectForKey:@"NSScreenNumber"]).unsignedIntegerValue;
+	CFArrayRef ms = CGDisplayCopyAllDisplayModes(sid, NULL);
+	CFIndex n = CFArrayGetCount(ms);
+	NSSize display;
+	for(int i = 0; i < n; ++i){
+	    CGDisplayModeRef m = (CGDisplayModeRef)CFArrayGetValueAtIndex(ms, i);
+	    if(CGDisplayModeGetIOFlags(m) & kDisplayModeNativeFlag){
+	        display.width = CGDisplayModeGetPixelWidth(m);
+	        display.height = CGDisplayModeGetPixelHeight(m);
+	        break;
+	    }
+	}
+    CFRelease(ms);
+    if (width)
+        *width = (int) display.width;
+    if (height)
+        *height = (int) (contentRect.size.height/contentRect.size.width) * display.width;
 
     } // autoreleasepool
 }
