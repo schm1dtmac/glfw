@@ -539,14 +539,6 @@ NSTimer *cursortimer = nil;
         window->ns.yscale = yscale;
         _glfwInputWindowContentScale(window, xscale, yscale);
     }
-
-    if (fbRect.size.width != window->ns.fbWidth ||
-        fbRect.size.height != window->ns.fbHeight)
-    {
-        window->ns.fbWidth  = fbRect.size.width;
-        window->ns.fbHeight = fbRect.size.height;
-        _glfwInputFramebufferSize(window, fbRect.size.width, fbRect.size.height);
-    }
 }
 
 - (void)drawRect:(NSRect)rect
