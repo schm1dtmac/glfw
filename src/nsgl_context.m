@@ -52,8 +52,6 @@ static void makeContextCurrentNSGL(_GLFWwindow* window)
 {
     @autoreleasepool {
 
-    [[NSThread currentThread] setQualityOfService: NSQualityOfServiceUserInteractive];
-
     if (window)
         [window->context.nsgl.object makeCurrentContext];
     else
@@ -69,6 +67,7 @@ static void swapBuffersNSGL(_GLFWwindow* window)
     @autoreleasepool {
 
     if(window->context.nsgl.swapInterval > 0) {
+        [[NSThread currentThread] setQualityOfService:NSQualityOfServiceUserInteractive];
         _glfwPlatformLockMutex(&window->context.nsgl.swapIntervalLock);
         do {
             // do-while guarantees at least one swap interval
