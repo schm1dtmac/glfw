@@ -357,7 +357,7 @@ NSTimer *cursortimer = nil;
         window = initWindow;
         trackingArea = nil;
         markedText = [[NSMutableAttributedString alloc] init];
-        [NSCursor setHiddenUntilMouseMoves:YES];
+        [NSCursor hide];
 
         [self updateTrackingAreas];
         [self registerForDraggedTypes:@[NSPasteboardTypeURL]];
@@ -453,6 +453,7 @@ NSTimer *cursortimer = nil;
     }
     
 	[cursortimer invalidate];
+    [NSCursor unhide];
     cursortimer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(hideMouse:) userInfo:nil repeats:NO];
 
     window->ns.cursorWarpDeltaX = 0;
@@ -461,7 +462,7 @@ NSTimer *cursortimer = nil;
 
 - (void)hideMouse:(NSTimer *)timer
 {
-    [NSCursor setHiddenUntilMouseMoves:YES];
+    [NSCursor hide];
     cursortimer = nil;
 }
 
