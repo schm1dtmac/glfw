@@ -390,7 +390,6 @@ static GLFWbool initializeTIS(void)
 
 - (void)doNothing:(id)object
 {
-    [[NSThread currentThread] setQualityOfService: NSQualityOfServiceUserInteractive];
 }
 
 @end // GLFWHelper
