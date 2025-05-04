@@ -52,6 +52,8 @@ static void makeContextCurrentNSGL(_GLFWwindow* window)
 {
     @autoreleasepool {
 
+    [[NSThread currentThread] setQualityOfService: NSQualityOfServiceUserInteractive];
+
     if (window)
         [window->context.nsgl.object makeCurrentContext];
     else
