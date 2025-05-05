@@ -815,8 +815,35 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
             styleMask |= NSWindowStyleMaskResizable;
     }
 
+    NSRect contentRect;
+
+    if (window->monitor)
+    {
+        GLFWvidmode mode;
+        int xpos, ypos;
+
+        _glfwGetVideoModeCocoa(window->monitor, &mode);
+        _glfwGetMonitorPosCocoa(window->monitor, &xpos, &ypos);
+
+        contentRect = NSMakeRect(xpos, ypos, mode.width, mode.height);
+    }
+    else
+    {
+        if (wndconfig->xpos == GLFW_ANY_POSITION ||
+            wndconfig->ypos == GLFW_ANY_POSITION)
+        {
+            contentRect = NSMakeRect(0, 0, wndconfig->width, wndconfig->height);
+        }
+        else
+        {
+            const int xpos = wndconfig->xpos;
+            const int ypos = _glfwTransformYCocoa(wndconfig->ypos + wndconfig->height - 1);
+            contentRect = NSMakeRect(xpos, ypos, wndconfig->width, wndconfig->height);
+        }
+    }
+
     window->ns.object = [[GLFWWindow alloc]
-        initWithContentRect:[[NSScreen mainScreen] frame]
+        initWithContentRect:contentRect
                   styleMask:styleMask
                     backing:NSBackingStoreBuffered
                       defer:NO];
