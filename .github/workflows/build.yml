@@ -15,7 +15,7 @@ jobs:
 
             - name: Build Cocoa static library
               run: |
-                  cmake -B build-cocoa-static -DCMAKE_OSX_ARCHITECTURES=arm64e
+                  cmake -B build-cocoa-static -DCMAKE_OSX_ARCHITECTURES=arm64
                   cmake --build build-cocoa-static --parallel 4
             - name: Upload artifact
               uses: actions/upload-artifact@v4
