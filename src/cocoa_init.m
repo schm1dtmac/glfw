@@ -103,7 +103,7 @@ static void createMenuBar(void)
     {
         char** progname = _NSGetProgname();
         if (progname && *progname)
-            appName = @(*progname);
+            appName = @
         else
             appName = @"GLFW Application";
     }
@@ -119,13 +119,6 @@ static void createMenuBar(void)
     [appMenu addItemWithTitle:[NSString stringWithFormat:@"About %@", appName]
                        action:@selector(orderFrontStandardAboutPanel:)
                 keyEquivalent:@""];
-    [appMenu addItem:[NSMenuItem separatorItem]];
-    NSMenu* servicesMenu = [[NSMenu alloc] init];
-    [NSApp setServicesMenu:servicesMenu];
-    [[appMenu addItemWithTitle:@"Services"
-                       action:NULL
-                keyEquivalent:@""] setSubmenu:servicesMenu];
-    [servicesMenu release];
     [appMenu addItem:[NSMenuItem separatorItem]];
     [appMenu addItemWithTitle:[NSString stringWithFormat:@"Hide %@", appName]
                        action:@selector(hide:)
@@ -152,20 +145,10 @@ static void createMenuBar(void)
     [windowMenu addItemWithTitle:@"Minimize"
                           action:@selector(performMiniaturize:)
                    keyEquivalent:@"m"];
-    [windowMenu addItemWithTitle:@"Zoom"
-                          action:@selector(performZoom:)
-                   keyEquivalent:@""];
     [windowMenu addItem:[NSMenuItem separatorItem]];
     [windowMenu addItemWithTitle:@"Bring All to Front"
                           action:@selector(arrangeInFront:)
                    keyEquivalent:@""];
-
-    // TODO: Make this appear at the bottom of the menu (for consistency)
-    [windowMenu addItem:[NSMenuItem separatorItem]];
-    [[windowMenu addItemWithTitle:@"Enter Full Screen"
-                           action:@selector(toggleFullScreen:)
-                    keyEquivalent:@"f"]
-     setKeyEquivalentModifierMask:NSEventModifierFlagControl | NSEventModifierFlagCommand];
 
     // Prior to Snow Leopard, we need to use this oddly-named semi-private API
     // to get the application menu working properly.
