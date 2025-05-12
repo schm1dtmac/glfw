@@ -103,7 +103,7 @@ static void createMenuBar(void)
     {
         char** progname = _NSGetProgname();
         if (progname && *progname)
-            appName = @
+            appName = @(*progname);
         else
             appName = @"GLFW Application";
     }
