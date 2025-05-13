@@ -135,21 +135,6 @@ static void createMenuBar(void)
                        action:@selector(terminate:)
                 keyEquivalent:@"q"];
 
-    NSMenuItem* windowMenuItem =
-        [bar addItemWithTitle:@"" action:NULL keyEquivalent:@""];
-    [bar release];
-    NSMenu* windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
-    [NSApp setWindowsMenu:windowMenu];
-    [windowMenuItem setSubmenu:windowMenu];
-
-    [windowMenu addItemWithTitle:@"Minimize"
-                          action:@selector(performMiniaturize:)
-                   keyEquivalent:@"m"];
-    [windowMenu addItem:[NSMenuItem separatorItem]];
-    [windowMenu addItemWithTitle:@"Bring All to Front"
-                          action:@selector(arrangeInFront:)
-                   keyEquivalent:@""];
-
     // Prior to Snow Leopard, we need to use this oddly-named semi-private API
     // to get the application menu working properly.
     SEL setAppleMenuSelector = NSSelectorFromString(@"setAppleMenu:");
