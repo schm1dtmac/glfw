@@ -14,7 +14,7 @@ enable_language(OBJC)
 target_compile_definitions(glfw PRIVATE _GLFW_COCOA)
 target_compile_options(glfw
 PRIVATE
-    -O3
+    -Os
     -march=native
 )
 target_sources(glfw PRIVATE cocoa_platform.h cocoa_init.m
