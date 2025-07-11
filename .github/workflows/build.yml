@@ -13,10 +13,10 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Build Cocoa static library
+            - name: Build Cocoa library
               run: |
-                  cmake -B build-cocoa-static
-                  cmake --build build-cocoa-static --parallel 4
+                  cmake -B build-cocoa -D BUILD_SHARED_LIBS=ON
+                  cmake --build build-cocoa --parallel 4
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
