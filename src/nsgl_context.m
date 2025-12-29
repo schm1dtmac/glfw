@@ -259,19 +259,34 @@ GLFWbool _glfwCreateContextNSGL(_GLFWwindow* window,
         }
     }
 
+    GLFWbool useHDR;
+
     if (fbconfig->redBits != GLFW_DONT_CARE &&
         fbconfig->greenBits != GLFW_DONT_CARE &&
         fbconfig->blueBits != GLFW_DONT_CARE)
     {
-        int colorBits = fbconfig->redBits +
-                        fbconfig->greenBits +
-                        fbconfig->blueBits;
+        int colorBits;
 
-        // macOS needs non-zero color size, so set reasonable values
-        if (colorBits == 0)
-            colorBits = 24;
-        else if (colorBits < 15)
-            colorBits = 15;
+        if (fbconfig->redBits == 16 &&
+            fbconfig->greenBits == 16 &&
+            fbconfig->blueBits == 16)
+        {
+            colorBits = 64;
+            ADD_ATTRIB(NSOpenGLPFAColorFloat);
+            useHDR = true;
+        }
+        else {
+            colorBits = fbconfig->redBits +
+                    fbconfig->greenBits +
+                    fbconfig->blueBits;
+
+            // macOS needs non-zero color size, so set reasonable values
+            if (colorBits == 0)
+                colorBits = 24;
+            else if (colorBits < 15)
+                colorBits = 15;
+            useHDR = false; 
+        }
 
         SET_ATTRIB(NSOpenGLPFAColorSize, colorBits);
     }
@@ -352,6 +367,7 @@ GLFWbool _glfwCreateContextNSGL(_GLFWwindow* window,
     }
 
     [window->ns.view setWantsBestResolutionOpenGLSurface:window->ns.scaleFramebuffer];
+    [window->ns.view setWantsExtendedDynamicRangeOpenGLSurface:useHDR];
 
     [window->context.nsgl.object setView:window->ns.view];
 
