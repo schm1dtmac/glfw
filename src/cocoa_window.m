@@ -908,7 +908,7 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
     [window->ns.object setAcceptsMouseMovedEvents:YES];
     [window->ns.object setRestorable:NO];
     [window->ns.object toggleFullScreen:nil];
-    [window->ns.object setColorSpace:[NSColorSpace sRGBColorSpace]];
+    [window->ns.object setColorSpace:[NSColorSpace extendedsRGBColorSpace]];
     [[window->ns.object standardWindowButton:NSWindowZoomButton] setEnabled:NO];
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 101200
